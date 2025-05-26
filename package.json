@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "pnpm@8.12.1",
   "scripts": {
-    "build": "nuxt build",
+    "build": "NODE_OPTIONS='--max-old-space-size=2048' nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
