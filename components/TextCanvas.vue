@@ -107,8 +107,16 @@ function calculateLineBreaksWithFont(
   maxWidth: number,
   fontSize: number
 ) {
+  // Trim the input text to remove leading and trailing whitespace
+  const trimmedText = inputText.trim();
+
+  // Handle completely empty text
+  if (trimmedText === "") {
+    return { lines: [""], fitsCanvas: true };
+  }
+
   // Split the input text by newline characters first
-  const paragraphs = inputText.split(/\n|\r\n/);
+  const paragraphs = trimmedText.split(/\n|\r\n/);
   const lines: string[] = [];
 
   // Process each paragraph separately
@@ -133,6 +141,12 @@ function calculateLineBreaksWithFont(
         const chars = word.split("");
         let chunk = "";
 
+        // If we have text in the current line, add it first
+        if (currentLine) {
+          lines.push(currentLine);
+          currentLine = "";
+        }
+
         for (const char of chars) {
           const testChunk = chunk + char;
           const testChunkWidth = measureTextWidth(font, testChunk, fontSize);
@@ -148,20 +162,7 @@ function calculateLineBreaksWithFont(
 
         // Add the last chunk if it exists
         if (chunk) {
-          if (currentLine) {
-            // Try to add to current line first
-            const testLine = `${currentLine} ${chunk}`;
-            const testLineWidth = measureTextWidth(font, testLine, fontSize);
-
-            if (testLineWidth <= maxWidth) {
-              currentLine = testLine;
-            } else {
-              lines.push(currentLine);
-              currentLine = chunk;
-            }
-          } else {
-            currentLine = chunk;
-          }
+          currentLine = chunk; // Start new line with this chunk
         }
         continue;
       }
@@ -184,6 +185,16 @@ function calculateLineBreaksWithFont(
     if (currentLine) {
       lines.push(currentLine);
     }
+  }
+
+  // Remove trailing empty lines that don't have text following them
+  while (lines.length > 0 && lines[lines.length - 1] === "") {
+    lines.pop();
+  }
+
+  // Ensure there's at least one line even if all were empty
+  if (lines.length === 0) {
+    lines.push("");
   }
 
   return { lines, fitsCanvas: true };

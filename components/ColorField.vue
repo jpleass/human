@@ -12,6 +12,19 @@ const onChange = (event: Event) => {
   const input = event.target as HTMLInputElement;
   emit("update:color", input.value);
 };
+
+const onInputChange = (event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const value = input.value;
+
+  // Validate hex color format (optional)
+  if (value.match(/^#([0-9A-F]{3}){1,2}$/i)) {
+    emit("update:color", value);
+  } else if (value.match(/^([0-9A-F]{3}){1,2}$/i)) {
+    // Add # if missing but format is valid
+    emit("update:color", `#${value}`);
+  }
+};
 </script>
 
 <template>
@@ -30,6 +43,12 @@ const onChange = (event: Event) => {
         class="absolute top-0 left-0 w-full h-full"
       />
     </div>
-    <div class="text-xs" v-html="color"></div>
+    <input
+      type="text"
+      :value="color"
+      @input="onInputChange"
+      class="text-xs border-none outline-none focus:ring-1 focus:ring-blue-300 rounded px-1 w-24"
+      placeholder="#RRGGBB"
+    />
   </div>
 </template>
